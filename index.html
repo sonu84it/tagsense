@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Image Pre-processor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #image-selector img { width: 100px; height: auto; cursor: pointer; margin: 5px; border: 2px solid transparent; }
+    #image-selector img.selected { border-color: #007acc; }
+    #controls { margin: 15px 0; }
+    #controls label { display: block; margin-bottom: 8px; }
+    #outputCanvas { max-width: 100%; border: 1px solid #ccc; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+<h1>Image Privacy Pre-processor Demo</h1>
+
+<p>Select an image and then click "Analyze Image" to detect objects. Choose which object types to blur, hide, or replace, then click "Apply".</p>
+
+<!-- Image selection gallery -->
+<div id="image-selector">
+  <!-- Thumbnails for the 5 images (replace src with actual image file paths or URLs) -->
+  <img src="images/img1.jpg" alt="Image 1" onclick="selectImage(this)" />
+  <img src="images/img2.jpg" alt="Image 2" onclick="selectImage(this)" />
+  <img src="images/img3.jpg" alt="Image 3" onclick="selectImage(this)" />
+  <img src="images/img4.jpg" alt="Image 4" onclick="selectImage(this)" />
+  <img src="images/img5.jpg" alt="Image 5" onclick="selectImage(this)" />
+</div>
+
+<!-- Preview of selected image -->
+<div>
+  <img id="preview" src="" alt="Selected Image Preview" style="max-width: 100%; display: none;" />
+</div>
+
+<button id="analyzeBtn" onclick="analyzeImage()" disabled>Analyze Image</button>
+
+<!-- Controls for object hiding (populated after analysis) -->
+<div id="controls"></div>
+
+<!-- Apply button to perform hiding -->
+<button id="applyBtn" onclick="applyHiding()" style="display:none;">Apply</button>
+
+<!-- Canvas for output image -->
+<canvas id="outputCanvas"></canvas>
+
+<script>
+  // *** Insert your Google Cloud Vision API key here ***
+  const API_KEY = "YOUR_API_KEY_HERE";
+
+  let selectedImagePath = "";
+  let detectedObjects = [];  // will hold objects detected by Vision API
+
+  // Function to handle image selection from the thumbnails
+  function selectImage(imgElement) {
+    // Visually indicate selected image
+    const thumbnails = document.querySelectorAll('#image-selector img');
+    thumbnails.forEach(img => img.classList.remove('selected'));
+    imgElement.classList.add('selected');
+    // Set the preview image
+    document.getElementById('preview').src = imgElement.src;
+    document.getElementById('preview').style.display = 'block';
+    selectedImagePath = imgElement.src;
+    // Enable the Analyze button
+    document.getElementById('analyzeBtn').disabled = false;
+    // Hide previous results if any
+    document.getElementById('controls').innerHTML = "";
+    document.getElementById('applyBtn').style.display = "none";
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // Function to call Google Vision API and get object & label annotations
+  async function analyzeImage() {
+    if (!selectedImagePath) return;
+    document.getElementById('analyzeBtn').innerText = "Analyzing...";
+    document.getElementById('analyzeBtn').disabled = true;
+    detectedObjects = [];
+
+    try {
+      // Fetch the image data as blob and convert to Base64
+      let response = await fetch(selectedImagePath);
+      let blob = await response.blob();
+      let reader = new FileReader();
+      const base64Data = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      // base64Data is like "data:image/jpeg;base64,<content>", we need the content part
+      const base64Content = base64Data.replace(/^data:image\/(png|jpeg);base64,/, "");
+
+      // Prepare Vision API request payload
+      const visionRequest = {
+        requests: [
+          {
+            image: { content: base64Content },
+            features: [
+              { type: "LABEL_DETECTION", maxResults: 10 },
+              { type: "OBJECT_LOCALIZATION", maxResults: 10 }
+            ]
+          }
+        ]
+      };
+
+      // Call the Vision API
+      let visionRes = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(visionRequest)
+      });
+      let result = await visionRes.json();
+
+      // Check and extract annotations
+      const resAnnotations = result.responses[0];
+      const labels = resAnnotations.labelAnnotations || [];
+      const objects = resAnnotations.localizedObjectAnnotations || [];
+      detectedObjects = objects;  // store the objects globally for later use
+
+      // Display detected labels (for info) and create controls for objects
+      const controlsDiv = document.getElementById('controls');
+      controlsDiv.innerHTML = "<h3>Detected Objects:</h3>";
+      if (objects.length === 0) {
+        controlsDiv.innerHTML += "<p><em>No objects detected.</em></p>";
+      }
+
+      // Group objects by name (category)
+      const categoryMap = {};
+      objects.forEach(obj => {
+        categoryMap[obj.name] = true;
+      });
+      const categories = Object.keys(categoryMap);
+
+      // For each unique object name, create a dropdown for action
+      categories.forEach(name => {
+        // Make a safe ID by removing spaces/special chars
+        const safeName = name.replace(/\W/g, "_");
+        controlsDiv.innerHTML += `
+          <label>
+            <strong>${name}</strong> – action:
+            <select id="action_${safeName}">
+              <option value="keep">Keep (no change)</option>
+              <option value="blur">Blur</option>
+              <option value="hide">Hide</option>
+              <option value="replace">Replace</option>
+            </select>
+          </label>
+        `;
+      });
+
+      if (objects.length > 0) {
+        // Show the Apply button now that we have objects
+        document.getElementById('applyBtn').style.display = "inline-block";
+      }
+
+      // Optionally, list labels (not used for hiding but for info)
+      if (labels.length > 0) {
+        controlsDiv.innerHTML += "<h4>General Tags:</h4><p>";
+        controlsDiv.innerHTML += labels.map(l => l.description).join(", ");
+        controlsDiv.innerHTML += "</p>";
+      }
+    } catch (error) {
+      console.error("Error during Vision API call:", error);
+      alert("An error occurred while analyzing the image. Check the console for details.");
+    } finally {
+      document.getElementById('analyzeBtn').innerText = "Analyze Image";
+      document.getElementById('analyzeBtn').disabled = false;
+    }
+  }
+
+  // Function to apply blurring/hiding/replacing as per user selection
+  function applyHiding() {
+    if (!detectedObjects || detectedObjects.length === 0) return;
+    const imgElement = document.getElementById('preview');
+    const canvas = document.getElementById('outputCanvas');
+    const ctx = canvas.getContext('2d');
+    const imgWidth = imgElement.naturalWidth;
+    const imgHeight = imgElement.naturalHeight;
+    canvas.width = imgWidth;
+    canvas.height = imgHeight;
+
+    // Draw the original image onto the canvas first
+    ctx.drawImage(imgElement, 0, 0, imgWidth, imgHeight);
+
+    // Prepare a blurred version of the image on an offscreen canvas (for blurring regions)
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = imgWidth;
+    offCanvas.height = imgHeight;
+    const offCtx = offCanvas.getContext('2d');
+    offCtx.filter = 'blur(10px)';  // apply Gaussian blur
+    offCtx.drawImage(imgElement, 0, 0, imgWidth, imgHeight);
+
+    // For each detected object, apply the chosen action
+    detectedObjects.forEach(obj => {
+      const name = obj.name;
+      const safeName = name.replace(/\W/g, "_");
+      const action = document.getElementById('action_' + safeName).value;
+      if (!action || action === "keep") return;  // no change for this object type
+
+      // Get the bounding polygon normalized vertices (assume 4 vertices of a rectangle)
+      const vertices = obj.boundingPoly.normalizedVertices;
+      if (!vertices || vertices.length === 0) return;
+      // Calculate pixel coordinates of bounding box
+      const x1 = Math.round(vertices[0].x * imgWidth);
+      const y1 = Math.round(vertices[0].y * imgHeight);
+      const x2 = Math.round(vertices[2].x * imgWidth);
+      const y2 = Math.round(vertices[2].y * imgHeight);
+      const width = x2 - x1;
+      const height = y2 - y1;
+
+      if (action === "blur") {
+        // Overlay the blurred region from offCanvas onto the original
+        ctx.drawImage(offCanvas, x1, y1, width, height, x1, y1, width, height);
+      } else if (action === "hide") {
+        // Hide = fill with a black rectangle
+        ctx.fillStyle = "black";
+        ctx.fillRect(x1, y1, width, height);
+      } else if (action === "replace") {
+        // Replace = fill with gray box and text "Hidden" (placeholder for an actual replacement)
+        ctx.fillStyle = "gray";
+        ctx.fillRect(x1, y1, width, height);
+        ctx.fillStyle = "white";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText("Hidden", x1 + 5, y1 + 20);
+      }
+    });
+
+    // Now the canvas contains the modified image. We can show it (it's already visible in HTML).
+    // For convenience, scroll to the result (if image is large).
+    canvas.scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
