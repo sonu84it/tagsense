@@ -3,49 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Image Pre-processor</title>
+  <title>Image Privacy Pre-processor Prototype</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #image-selector img { width: 100px; height: auto; cursor: pointer; margin: 5px; border: 2px solid transparent; }
-    #image-selector img.selected { border-color: #007acc; }
-    #controls { margin: 15px 0; }
-    #controls label { display: block; margin-bottom: 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      color: #333;
+      overflow: hidden;
+    }
+    h1 {
+      text-align: center;
+      color: #ff4081;
+    }
+    #image-selector {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .image-option {
+      text-align: center;
+    }
+    .img-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #ff4081;
+    }
+    .image-option img {
+      width: 80px;
+      height: auto;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 4px;
+    }
+    .image-option img.selected {
+      border-color: #ff4081;
+    }
+    #app {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      height: calc(100vh - 200px);
+    }
+    #leftPane, #rightPane {
+      flex: 1;
+      text-align: center;
+    }
+    #preview, #outputImage {
+      max-width: 90%;
+      max-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    #controls {
+      margin-top: 10px;
+    }
+    select, button {
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: none;
+      margin-right: 10px;
+    }
+    button {
+      background: #ff4081;
+      color: #fff;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
-<h1>Image Privacy Pre-processor Demo</h1>
+<h1>Image Privacy Pre-processor Prototype</h1>
 
-<p>Choose which object types to blur, hide, or replace, then click "Apply".</p>
+<p style="text-align: center;">Choose which object types to blur, hide, or replace, then click "Apply".</p>
 
 <!-- Image selection gallery -->
 <div id="image-selector">
-  <img src="images/security.png" alt="Security Risk" onclick="selectImage(this)" />
-  <img src="images/privacy.png" alt="Privacy Risk" onclick="selectImage(this)" />
-  <img src="images/compliance.png" alt="Compliance Risk" onclick="selectImage(this)" />
+  <div class="image-option">
+    <div class="img-title">Security Risk</div>
+    <img src="images/security.png" alt="Security Risk" onclick="selectImage(this)" />
+  </div>
+  <div class="image-option">
+    <div class="img-title">Privacy Risk</div>
+    <img src="images/privacy.png" alt="Privacy Risk" onclick="selectImage(this)" />
+  </div>
+  <div class="image-option">
+    <div class="img-title">Compliance Risk</div>
+    <img src="images/compliance.png" alt="Compliance Risk" onclick="selectImage(this)" />
+  </div>
 </div>
 
-<!-- Preview of selected image -->
-<div>
-  <img id="preview" src="" alt="Selected Image Preview" style="max-width: 100%; display: none;" />
-</div>
-
-<!-- Action selection -->
-<div id="controls">
-  <label for="actionSelect">Action:</label>
-  <select id="actionSelect" disabled>
-    <option value="blur">Blur</option>
-    <option value="hide">Hide</option>
-    <option value="replace">Replace</option>
-  </select>
-</div>
-
-<!-- Apply button -->
-<button id="applyBtn" onclick="applyAction()" disabled>Apply</button>
-
-<!-- Output image -->
-<div>
-  <img id="outputImage" src="" alt="Output Image" style="max-width: 100%; display: none;" />
+<div id="app">
+  <div id="leftPane">
+    <h2>Original</h2>
+    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" />
+    <div id="controls">
+      <label for="actionSelect">Action:</label>
+      <select id="actionSelect" disabled>
+        <option value="blur">Blur</option>
+        <option value="hide">Hide</option>
+        <option value="replace">Replace</option>
+      </select>
+      <button id="applyBtn" onclick="applyAction()" disabled>Apply</button>
+    </div>
+  </div>
+  <div id="rightPane">
+    <h2>Result</h2>
+    <img id="outputImage" src="" alt="Output Image" style="display: none;" />
+  </div>
 </div>
 
 <script>
