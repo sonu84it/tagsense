@@ -20,9 +20,9 @@
 
 <!-- Image selection gallery -->
 <div id="image-selector">
-  <img src="images/security.jpg" alt="Security Risk" onclick="selectImage(this)" />
-  <img src="images/privacy.jpg" alt="Privacy Risk" onclick="selectImage(this)" />
-  <img src="images/compliance.jpg" alt="Compliance Risk" onclick="selectImage(this)" />
+  <img src="images/security.png" alt="Security Risk" onclick="selectImage(this)" />
+  <img src="images/privacy.png" alt="Privacy Risk" onclick="selectImage(this)" />
+  <img src="images/compliance.png" alt="Compliance Risk" onclick="selectImage(this)" />
 </div>
 
 <!-- Preview of selected image -->
@@ -66,7 +66,7 @@
   function applyAction() {
     const action = document.getElementById('actionSelect').value;
     if (!selectedImageBase) return;
-    const outputPath = `images/${selectedImageBase}_${action}.jpg`;
+    const outputPath = `images/${selectedImageBase}_${action}.png`;
     const outImg = document.getElementById('outputImage');
     outImg.src = outputPath;
     outImg.style.display = 'block';
