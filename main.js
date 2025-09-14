@@ -28,25 +28,21 @@ async function applyAction() {
 }
 
 async function compareImages() {
-  if (typeof LanguageModel === 'undefined' || !LanguageModel.create) {
+  if (typeof LanguageModel === 'undefined') {
     console.warn('LanguageModel API not available');
     return;
   }
   try {
     const session = await LanguageModel.create({
-      model: 'models/gemini-1.5-flash',
+      // { type: 'text' } only required when including expected input languages.
       expectedInputs: [{ type: 'image' }],
       outputLanguage: 'en',
     });
 
-    const inputBlob = await (await fetch(document.getElementById('preview').src)).blob();
-    const outputBlob = await (await fetch(document.getElementById('outputImage').src)).blob();
+    const inputimage = await (await fetch(document.getElementById('preview').src)).blob();
+    const outputimage = await (await fetch(document.getElementById('outputImage').src)).blob();
 
-    const inputFile = new File([inputBlob], 'input.png', { type: inputBlob.type || 'image/png' });
-    const outputFile = new File([outputBlob], 'output.png', { type: outputBlob.type || 'image/png' });
-
-    const analysisBox = document.getElementById('analysisResult');
-    const stream = await session.promptStreaming([
+    const response1 = await session.prompt([
       {
         role: 'user',
         content: [
@@ -55,46 +51,18 @@ async function compareImages() {
             value:
               'Analyze the given input image to identify any items that may pose privacy, security, or compliance risks. Exclude faces from detection and focus strictly on objects such as:\n\nCredit cards or ID cards\n\nLaptops or screens displaying sensitive information\n\nDocuments, papers, or files with visible text\n\nWhiteboards containing meeting notes, client details, or other material information\n\nUse the Chrome Prompt API with the local on-device model to generate a processed output image. For each identified item, apply and document the remediation action taken — whether it was blurred, hidden, or replaced with a safe placeholder.\n\nAfter generating the output image, provide a comparison summary between input and output, explicitly noting the changes applied to sensitive objects. Finally, evaluate the processed image and state clearly whether it is now compliant for upload, or if further improvements are still needed before sharing on any public or social platform.',
           },
-          { type: 'image', value: inputFile },
-          { type: 'image', value: outputFile },
+          { type: 'image', value: inputimage },
+          { type: 'image', value: outputimage },
         ],
       },
     ]);
 
-    for await (const chunk of stream) {
-      for (const part of chunk.output[0].content) {
-        if (part.type === 'text') {
-          analysisBox.value += part.text;
-        }
-      }
-    }
+    console.log(response1);
+    const analysisText =
+      response1?.output?.[0]?.content?.map((c) => c.text).join('\n') ||
+      'No response';
+    document.getElementById('analysisResult').value = analysisText;
   } catch (err) {
     console.error(err);
   }
 }
-
-async function demoPrompt() {
-  if (typeof LanguageModel === 'undefined' || !LanguageModel.create) {
-    console.warn('LanguageModel API not available');
-    return;
-  }
-  try {
-    const session = await LanguageModel.create({
-      model: 'models/gemini-1.5-flash',
-    });
-    const stream = await session.promptStreaming('Hello from TagSense!');
-    let text = '';
-    for await (const chunk of stream) {
-      for (const part of chunk.output[0].content) {
-        if (part.type === 'text') {
-          text += part.text;
-        }
-      }
-    }
-    console.log(text);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-demoPrompt();
