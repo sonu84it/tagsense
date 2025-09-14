@@ -5,35 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TagSense Privacy Filter (Prototype)</title>
   <link rel="stylesheet" href="./style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <header class="app-header">
+    <h1>TagSense Privacy Filter (Prototype)</h1>
+    <p class="subtitle">Protect sensitive details before sharing</p>
+  </header>
 
-<h1>TagSense Privacy Filter (Prototype)</h1>
+  <p class="intro">Click on an image to choose which sensitive objects to protect before sharing.</p>
 
-<p style="text-align: center;">Click on an image to choose which sensitive objects to protect before sharing.</p>
-
-<!-- Image selection gallery -->
-<div id="image-selector">
-  <div class="image-option">
-    <div class="img-title">Security Risk</div>
-    <img src="images/security.png" alt="Security Risk" onclick="selectImage(this)" />
+  <!-- Image selection gallery -->
+  <div id="image-selector" class="risk-cards">
+    <div class="risk-card" onclick="selectImage(this.querySelector('img'))">
+      <img src="images/security.png" alt="Security Risk" />
+      <div class="risk-label">Security Risk</div>
+    </div>
+    <div class="risk-card" onclick="selectImage(this.querySelector('img'))">
+      <img src="images/privacy.png" alt="Privacy Risk" />
+      <div class="risk-label">Privacy Risk</div>
+    </div>
+    <div class="risk-card" onclick="selectImage(this.querySelector('img'))">
+      <img src="images/compliance.png" alt="Compliance Risk" />
+      <div class="risk-label">Compliance Risk</div>
+    </div>
   </div>
-  <div class="image-option">
-    <div class="img-title">Privacy Risk</div>
-    <img src="images/privacy.png" alt="Privacy Risk" onclick="selectImage(this)" />
-  </div>
-  <div class="image-option">
-    <div class="img-title">Compliance Risk</div>
-    <img src="images/compliance.png" alt="Compliance Risk" onclick="selectImage(this)" />
-  </div>
-</div>
 
-<div id="app">
-  <div class="pane" id="originalPane">
-    <h2>Original</h2>
-    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" />
-    <div id="controls">
-      <label for="actionSelect">Action:</label>
+  <div id="app">
+    <figure class="image-card" id="originalPane">
+      <figcaption>Unprocessed Image</figcaption>
+      <img id="preview" src="" alt="Selected Image Preview" style="display: none;" />
+    </figure>
+
+    <div id="controls" class="control-pane">
+      <label for="actionSelect">Remediation Option</label>
       <select id="actionSelect" disabled>
         <option value="blur">Blur</option>
         <option value="hide">Hide</option>
@@ -41,16 +48,24 @@
       </select>
       <button id="applyBtn" onclick="applyAction()" disabled>Apply</button>
     </div>
-  </div>
-  <div class="pane" id="resultPane">
-    <h2>Result</h2>
-    <img id="outputImage" src="" alt="Output Image" style="display: none;" />
-    <h3 id="summaryHeading" style="display: none;">Text Summary</h3>
-    <textarea id="analysisResult" readonly style="display: none;"></textarea>
-  </div>
-</div>
 
-<script src="./main.js"></script>
+    <figure class="image-card" id="resultPane">
+      <figcaption>Processed Image</figcaption>
+      <img id="outputImage" src="" alt="Output Image" style="display: none;" />
+      <div id="summarySection" style="display:none;">
+        <h3 id="summaryHeading">Input Image Risks</h3>
+        <div class="tabs">
+          <button class="tab-btn active" data-target="summaryBox">Summary</button>
+          <button class="tab-btn" data-target="rawBox">Raw Output</button>
+        </div>
+        <div id="summaryBox" class="tab-content active"></div>
+        <pre id="rawBox" class="tab-content"></pre>
+      </div>
+    </figure>
+  </div>
 
+  <footer class="app-footer">Built with Chrome Prompt API | TagSense Prototype – Hackathon 2025</footer>
+
+  <script src="./main.js"></script>
 </body>
 </html>
