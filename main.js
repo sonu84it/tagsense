@@ -58,8 +58,8 @@ async function compareImages() {
         ],
       },
     ]);
-    for await (const chunk of stream) {
-    document.getElementById("analysisResult").value = JSON.stringify(responseStream1, null, 2);
+    for await (const chunk of responseStream1) {
+    document.getElementById("analysisResult").value = JSON.stringify(chunk, null, 2);
    }
   } catch (err) {
     console.error(err);
