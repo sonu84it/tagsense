@@ -59,8 +59,7 @@ async function compareImages() {
 
     console.log(response1);
     const analysisText =
-      response1?.output?.[0]?.content?.map((c) => c.text).join('\n') ||
-      'No response';
+      response1?.output?.[0]?.content ?? "No response";
     document.getElementById('analysisResult').value = analysisText;
   } catch (err) {
     console.error(err);
