@@ -44,7 +44,8 @@ async function compareImages() {
     const inputFile = new File([inputBlob], 'input.png', { type: inputBlob.type || 'image/png' });
     const outputFile = new File([outputBlob], 'output.png', { type: outputBlob.type || 'image/png' });
 
-    const response1 = await session.prompt([
+    const analysisBox = document.getElementById('analysisResult');
+    const stream = await session.promptStreaming([
       {
         role: 'user',
         content: [
@@ -59,11 +60,13 @@ async function compareImages() {
       },
     ]);
 
-    console.log(response1);
-    const analysisText =
-      response1?.output?.[0]?.content?.map((c) => c.text).join('\n') ||
-      'No response';
-    document.getElementById('analysisResult').value = analysisText;
+    for await (const chunk of stream) {
+      for (const part of chunk.output[0].content) {
+        if (part.type === 'text') {
+          analysisBox.value += part.text;
+        }
+      }
+    }
   } catch (err) {
     console.error(err);
   }
