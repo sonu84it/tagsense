@@ -124,6 +124,7 @@ async function generateSummary() {
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
     const result = await summarizer.summarize({ text: rawBox.textContent });
+    console.log(result);
     const summaryText = (result && result.summary) || '';
     if (summaryBox) summaryBox.innerHTML = markdownToHTML(summaryText);
     summaryGenerated = true;
