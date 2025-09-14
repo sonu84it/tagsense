@@ -76,3 +76,9 @@ button {
   color: #fff;
   cursor: pointer;
 }
+
+#analysisResult {
+  margin-top: 10px;
+  text-align: left;
+  white-space: pre-wrap;
+}
