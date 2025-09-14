@@ -2,14 +2,13 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
-  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  background: #f5f7fa;
   color: #333;
-  overflow: hidden;
 }
 
 h1 {
   text-align: center;
-  color: #ff4081;
+  color: #4a90e2;
 }
 
 #image-selector {
@@ -26,7 +25,7 @@ h1 {
 .img-title {
   font-weight: bold;
   margin-bottom: 5px;
-  color: #ff4081;
+  color: #4a90e2;
 }
 
 .image-option img {
@@ -38,19 +37,29 @@ h1 {
 }
 
 .image-option img.selected {
-  border-color: #ff4081;
+  border-color: #4a90e2;
 }
 
 #app {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  height: calc(100vh - 200px);
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-#leftPane, #rightPane {
+.pane {
   flex: 1;
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  #app {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
 }
 
 #preview, #outputImage {
@@ -72,7 +81,7 @@ select, button {
 }
 
 button {
-  background: #ff4081;
+  background: #4a90e2;
   color: #fff;
   cursor: pointer;
 }
