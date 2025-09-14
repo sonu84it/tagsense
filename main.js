@@ -145,9 +145,7 @@ async function generateSummary() {
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
-    console.log(rawOutputText);
-    const result = await summarizer.summarize({ text: rawOutputText });
-    console.log(result);
+    const result = await summarizer.summarize({ text: JSON.stringify(rawOutputText, null, 2) });
     const summaryText = (result && result.summary) || '';
     if (summaryBox) {
       if (summaryText.trim()) {
