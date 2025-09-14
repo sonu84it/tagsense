@@ -110,7 +110,7 @@ async function compareImages() {
       },
     ]);
     rawOutputText = JSON.stringify(response1, null, 2);
-    if (rawBox) rawBox.textContent = JSON.stringify(response1, null, 2);
+    if (rawBox) rawBox.textContent = rawOutputText;
     document.getElementById('summaryTab').disabled = !rawOutputText;
   } catch (err) {
     console.error(err);
@@ -131,8 +131,8 @@ async function generateSummary() {
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
-    console.log(JSON.stringify(response1, null, 2));
-    const result = await summarizer.summarize(JSON.stringify(response1, null, 2));
+    console.log(rawOutputText);
+    const result = await summarizer.summarize(rawOutputText);
     console.log(result);
     const summaryText = (result && result.summary) || '';
     if (summaryBox) {
