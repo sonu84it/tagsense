@@ -152,6 +152,11 @@ body {
   color: #fff;
 }
 
+.tab-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
 .tab-content {
   display: none;
   overflow-y: auto;
