@@ -59,7 +59,6 @@ async function compareImages() {
       },
     ]);
     for await (const c of responseStream1) (c.output?.[0]?.content||[]).forEach(p=>p.type==="text"&&(document.getElementById("analysisResult").value+=p.text));
-   }
   } catch (err) {
     console.error(err);
   }
