@@ -79,6 +79,7 @@ button {
 
 #analysisResult {
   margin-top: 10px;
-  text-align: left;
-  white-space: pre-wrap;
+  width: 90%;
+  height: 120px;
+  resize: vertical;
 }
