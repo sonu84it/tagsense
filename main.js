@@ -1,4 +1,5 @@
 let selectedImageBase = "";
+let summaryGenerated = false;
 
 function selectImage(imgElement) {
   const cards = document.querySelectorAll('.risk-card');
@@ -15,6 +16,8 @@ function selectImage(imgElement) {
   document.getElementById('summarySection').style.display = 'none';
   document.getElementById('summaryBox').innerHTML = '';
   document.getElementById('rawBox').textContent = '';
+  document.getElementById('summaryTab').disabled = true;
+  summaryGenerated = false;
 }
 
 async function applyAction() {
@@ -28,6 +31,8 @@ async function applyAction() {
   document.getElementById('summaryHeading').style.display = 'block';
   document.getElementById('summaryBox').innerHTML = '';
   document.getElementById('rawBox').textContent = '';
+  document.getElementById('summaryTab').disabled = true;
+  summaryGenerated = false;
   await compareImages();
 }
 
@@ -62,11 +67,12 @@ function markdownToHTML(md) {
   return html;
 }
 
+const defaultMessage =
+  'Chrome AI model not available on this device. To use TagSense, please enable and download the local Prompt API model in Chrome.';
+
 async function compareImages() {
   const summaryBox = document.getElementById('summaryBox');
   const rawBox = document.getElementById('rawBox');
-  const defaultMessage =
-    'Chrome AI model not available on this device. To use TagSense, please enable and download the local Prompt API model in Chrome.';
   if (typeof LanguageModel === 'undefined') {
     console.warn('LanguageModel API not available');
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -97,10 +103,7 @@ async function compareImages() {
       },
     ]);
     if (rawBox) rawBox.textContent = JSON.stringify(response1, null, 2);
-    const summaryText =
-      (Array.isArray(response1) && response1[0] && response1[0].content && response1[0].content[0] && response1[0].content[0].value) ||
-      '';
-    if (summaryBox) summaryBox.innerHTML = markdownToHTML(summaryText);
+    document.getElementById('summaryTab').disabled = false;
   } catch (err) {
     console.error(err);
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -108,14 +111,40 @@ async function compareImages() {
   }
 }
 
+async function generateSummary() {
+  const summaryBox = document.getElementById('summaryBox');
+  const rawBox = document.getElementById('rawBox');
+  if (summaryGenerated) return;
+  if (!rawBox || !rawBox.textContent.trim()) return;
+  if (typeof Summarizer === 'undefined') {
+    console.warn('Summarizer API not available');
+    if (summaryBox) summaryBox.innerText = defaultMessage;
+    return;
+  }
+  try {
+    const summarizer = await Summarizer.create({ language: 'en' });
+    const result = await summarizer.summarize({ text: rawBox.textContent });
+    const summaryText = (result && result.summary) || '';
+    if (summaryBox) summaryBox.innerHTML = markdownToHTML(summaryText);
+    summaryGenerated = true;
+  } catch (err) {
+    console.error(err);
+    if (summaryBox) summaryBox.innerText = defaultMessage;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       const target = document.getElementById(btn.dataset.target);
       if (target) target.classList.add('active');
+      if (btn.dataset.target === 'summaryBox') {
+        await generateSummary();
+      }
     });
   });
 });

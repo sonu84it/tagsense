@@ -55,11 +55,11 @@
       <div id="summarySection" style="display:none;">
         <h3 id="summaryHeading">Input Image Risks</h3>
         <div class="tabs">
-          <button class="tab-btn active" data-target="summaryBox">Summary</button>
-          <button class="tab-btn" data-target="rawBox">Raw Output</button>
+          <button class="tab-btn active" data-target="rawBox">Raw Output</button>
+          <button id="summaryTab" class="tab-btn" data-target="summaryBox" disabled>Summary</button>
         </div>
-        <div id="summaryBox" class="tab-content active"></div>
-        <pre id="rawBox" class="tab-content"></pre>
+        <pre id="rawBox" class="tab-content active"></pre>
+        <div id="summaryBox" class="tab-content"></div>
       </div>
     </figure>
   </div>
