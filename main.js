@@ -73,7 +73,7 @@ function markdownToHTML(md) {
 }
 
 const defaultMessage =
-  'Chrome AI model not available on this device. To use TagSense, please enable and download the local Prompt API model in Chrome.';
+  'Chrome AI model not available on this device. To use TagSense, please download and enable it.';
 
 async function compareImages() {
   const summaryBox = document.getElementById('summaryBox');
@@ -109,7 +109,7 @@ async function compareImages() {
         ],
       },
     ]);
-    rawOutputText = extractTextFromResponse(response1).trim();
+    rawOutputText = JSON.stringify(response1, null, 2);
     if (rawBox) rawBox.textContent = JSON.stringify(response1, null, 2);
     document.getElementById('summaryTab').disabled = !rawOutputText;
   } catch (err) {
@@ -117,20 +117,6 @@ async function compareImages() {
     if (summaryBox) summaryBox.innerText = defaultMessage;
     if (rawBox) rawBox.textContent = defaultMessage;
   }
-}
-
-function extractTextFromResponse(response) {
-  if (!response) return '';
-  if (typeof response === 'string') return response;
-  if (Array.isArray(response)) {
-    return response.map(extractTextFromResponse).join(' ');
-  }
-  if (typeof response === 'object') {
-    if (typeof response.text === 'string') return response.text;
-    if (typeof response.value === 'string') return response.value;
-    return Object.values(response).map(extractTextFromResponse).join(' ');
-  }
-  return '';
 }
 
 async function generateSummary() {
@@ -145,8 +131,7 @@ async function generateSummary() {
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
-    const rawOutputSummmarizer = JSON.stringify(rawOutputText, null, 2);
-    const result = await summarizer.summarize(rawOutputSummmarizer);
+    const result = await summarizer.summarize(rawOutputText);
     const summaryText = (result && result.summary) || '';
     if (summaryBox) {
       if (summaryText.trim()) {
