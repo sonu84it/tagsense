@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "TagSense Demo",
+  "version": "1.0",
+  "description": "Image privacy pre-processor prototype as a Chrome extension.",
+  "action": {
+    "default_popup": "index.html"
+  },
+  "origin_trials": [
+    {
+      "id": "ArFm9aFw4tyKDX4T31yRBGjMO8zBwMfVSxXkdd+q6/8xFBxaFrPudMOtk3zUVY79+0Z0jTVHHwBCht5fm8vFgIAAABmeyJvcmlnaW4iOiJodHRwczovL3NvbnU4NGl0LmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDB9"
+    }
+  ]
+}
