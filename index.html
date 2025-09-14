@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Privacy Pre-processor Prototype</title>
+  <title>SafeShare Image Cleaner</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-<h1>Image Privacy Pre-processor Prototype</h1>
+<h1>SafeShare Image Cleaner</h1>
 
-<p style="text-align: center;">Choose which object types to blur, hide, or replace, then click "Apply".</p>
+<p style="text-align: center;">Select sensitive items to blur, hide, or replace, then click Apply to make your image compliant.</p>
 
 <!-- Image selection gallery -->
 <div id="image-selector">
@@ -45,6 +45,7 @@
   <div class="pane" id="resultPane">
     <h2>Result</h2>
     <img id="outputImage" src="" alt="Output Image" style="display: none;" />
+    <h3 id="summaryHeading" style="display: none;">Text Summary</h3>
     <textarea id="analysisResult" readonly style="display: none;"></textarea>
   </div>
 </div>
