@@ -1,0 +1,78 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  color: #333;
+  overflow: hidden;
+}
+
+h1 {
+  text-align: center;
+  color: #ff4081;
+}
+
+#image-selector {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.image-option {
+  text-align: center;
+}
+
+.img-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #ff4081;
+}
+
+.image-option img {
+  width: 80px;
+  height: auto;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+
+.image-option img.selected {
+  border-color: #ff4081;
+}
+
+#app {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: calc(100vh - 200px);
+}
+
+#leftPane, #rightPane {
+  flex: 1;
+  text-align: center;
+}
+
+#preview, #outputImage {
+  max-width: 90%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#controls {
+  margin-top: 10px;
+}
+
+select, button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  margin-right: 10px;
+}
+
+button {
+  background: #ff4081;
+  color: #fff;
+  cursor: pointer;
+}
