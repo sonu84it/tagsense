@@ -19,6 +19,9 @@ function applyAction() {
   const outImg = document.getElementById('outputImage');
   outImg.src = outputPath;
   outImg.style.display = 'block';
+  const analysisBox = document.getElementById('analysisResult');
+  analysisBox.style.display = 'block';
+  analysisBox.value = '';
   compareImages();
 }
 
@@ -41,8 +44,9 @@ Documents, papers, or files with visible text
 Whiteboards containing meeting notes, client details, or other material information
 
 For each identified item, suggest appropriate remediation options — blur, hide, or replace — before the image is shared on any public or social platform. The goal is to ensure the image is compliance-safe and free from unintended data exposure. If no such sensitive items are found, clearly state that the image is compliant and the user may proceed with upload.`,
-      images: [blob]
-    });
+        images: [blob],
+        outputLanguage: 'en'
+      });
     const message = result?.output?.[0]?.content?.[0]?.text || 'No sensitive items found. The image is compliant and may be uploaded.';
     alert(message);
   } catch (err) {
@@ -60,6 +64,7 @@ async function compareImages() {
     const session = await LanguageModel.create({
       // { type: 'text' } only required when including expected input languages.
       expectedInputs: [{ type: 'image' }],
+      outputLanguage: 'en',
     });
 
     const inputimage = await (await fetch(document.getElementById('preview').src)).blob();
@@ -84,32 +89,8 @@ async function compareImages() {
     const analysisText =
       response1?.output?.[0]?.content?.map((c) => c.text).join('\n') ||
       'No response';
-    document.getElementById('analysisResult').textContent = analysisText;
-
-    const audioBlob = await captureMicrophoneInput({ seconds: 10 });
-    const response2 = await session.prompt([
-      {
-        role: 'user',
-        content: [
-          { type: 'text', value: 'My response to your critique:' },
-          { type: 'audio', value: audioBlob },
-        ],
-      },
-    ]);
-    console.log(response2);
+    document.getElementById('analysisResult').value = analysisText;
   } catch (err) {
     console.error(err);
   }
-}
-
-async function captureMicrophoneInput({ seconds }) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const recorder = new MediaRecorder(stream);
-  const chunks = [];
-  recorder.ondataavailable = (e) => chunks.push(e.data);
-  recorder.start();
-  await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-  recorder.stop();
-  await new Promise((resolve) => (recorder.onstop = resolve));
-  return new Blob(chunks, { type: 'audio/webm' });
 }
