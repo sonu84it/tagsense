@@ -28,12 +28,13 @@ async function applyAction() {
 }
 
 async function compareImages() {
-  if (!window.ai || !window.ai.createGenericSession) {
-    console.warn('AI Prompt API not available');
+  if (typeof LanguageModel === 'undefined' || !LanguageModel.create) {
+    console.warn('LanguageModel API not available');
     return;
   }
   try {
-    const session = await window.ai.createGenericSession({
+    const session = await LanguageModel.create({
+      model: 'models/gemini-1.5-flash',
       expectedInputs: [{ type: 'image' }],
       outputLanguage: 'en',
     });
@@ -71,3 +72,29 @@ async function compareImages() {
     console.error(err);
   }
 }
+
+async function demoPrompt() {
+  if (typeof LanguageModel === 'undefined' || !LanguageModel.create) {
+    console.warn('LanguageModel API not available');
+    return;
+  }
+  try {
+    const session = await LanguageModel.create({
+      model: 'models/gemini-1.5-flash',
+    });
+    const stream = await session.promptStreaming('Hello from TagSense!');
+    let text = '';
+    for await (const chunk of stream) {
+      for (const part of chunk.output[0].content) {
+        if (part.type === 'text') {
+          text += part.text;
+        }
+      }
+    }
+    console.log(text);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+demoPrompt();
