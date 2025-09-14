@@ -1,7 +1,8 @@
 let selectedImageBase = "";
 let summaryGenerated = false;
 let rawOutputText = "";
-const runningMessage = 'Chrome AI model Running...';
+const runningMessagePromptAPI = 'Chrome Prompt AI model Running...';
+const runningMessageSummaryAPI = 'Chrome Summary AI model Running...';
 
 function selectImage(imgElement) {
   const cards = document.querySelectorAll('.risk-card');
@@ -77,8 +78,8 @@ const defaultMessage =
 async function compareImages() {
   const summaryBox = document.getElementById('summaryBox');
   const rawBox = document.getElementById('rawBox');
-  if (summaryBox) summaryBox.innerText = runningMessage;
-  if (rawBox) rawBox.textContent = runningMessage;
+  if (summaryBox) summaryBox.innerText = runningMessageSummaryAPI;
+  if (rawBox) rawBox.textContent = runningMessagePromptAPI;
   if (typeof LanguageModel === 'undefined') {
     console.warn('LanguageModel API not available');
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -136,7 +137,7 @@ async function generateSummary() {
   const summaryBox = document.getElementById('summaryBox');
   if (summaryGenerated) return;
   if (!rawOutputText.trim()) return;
-  if (summaryBox) summaryBox.innerText = runningMessage;
+  if (summaryBox) summaryBox.innerText = runningMessageSummaryAPI;
   if (typeof Summarizer === 'undefined') {
     console.warn('Summarizer API not available');
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -145,6 +146,7 @@ async function generateSummary() {
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
     const result = await summarizer.summarize({ text: rawOutputText });
+    console.log(result);
     const summaryText = (result && result.summary) || '';
     if (summaryBox) {
       if (summaryText.trim()) {
