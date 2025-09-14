@@ -131,17 +131,8 @@ async function generateSummary() {
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
-    console.log(rawOutputText);
     const result = await summarizer.summarize(rawOutputText);
-    console.log(result);
-    const summaryText = (result && result.summary) || '';
-    if (summaryBox) {
-      if (summaryText.trim()) {
-        summaryBox.innerHTML = markdownToHTML(summaryText);
-      } else {
-        summaryBox.innerText = defaultMessage;
-      }
-    }
+    summaryBox.innerHTML = markdownToHTML(result);
     summaryGenerated = true;
   } catch (err) {
     console.error(err);
