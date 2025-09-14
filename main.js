@@ -1,5 +1,7 @@
 let selectedImageBase = "";
 let summaryGenerated = false;
+let rawOutputText = "";
+const runningMessage = 'Chrome AI model Running...';
 
 function selectImage(imgElement) {
   const cards = document.querySelectorAll('.risk-card');
@@ -18,6 +20,7 @@ function selectImage(imgElement) {
   document.getElementById('rawBox').textContent = '';
   document.getElementById('summaryTab').disabled = true;
   summaryGenerated = false;
+  rawOutputText = '';
 }
 
 async function applyAction() {
@@ -33,6 +36,7 @@ async function applyAction() {
   document.getElementById('rawBox').textContent = '';
   document.getElementById('summaryTab').disabled = true;
   summaryGenerated = false;
+  rawOutputText = '';
   await compareImages();
 }
 
@@ -73,6 +77,8 @@ const defaultMessage =
 async function compareImages() {
   const summaryBox = document.getElementById('summaryBox');
   const rawBox = document.getElementById('rawBox');
+  if (summaryBox) summaryBox.innerText = runningMessage;
+  if (rawBox) rawBox.textContent = runningMessage;
   if (typeof LanguageModel === 'undefined') {
     console.warn('LanguageModel API not available');
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -102,8 +108,9 @@ async function compareImages() {
         ],
       },
     ]);
+    rawOutputText = extractTextFromResponse(response1).trim();
     if (rawBox) rawBox.textContent = JSON.stringify(response1, null, 2);
-    document.getElementById('summaryTab').disabled = false;
+    document.getElementById('summaryTab').disabled = !rawOutputText;
   } catch (err) {
     console.error(err);
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -111,11 +118,25 @@ async function compareImages() {
   }
 }
 
+function extractTextFromResponse(response) {
+  if (!response) return '';
+  if (typeof response === 'string') return response;
+  if (Array.isArray(response)) {
+    return response.map(extractTextFromResponse).join(' ');
+  }
+  if (typeof response === 'object') {
+    if (typeof response.text === 'string') return response.text;
+    if (typeof response.value === 'string') return response.value;
+    return Object.values(response).map(extractTextFromResponse).join(' ');
+  }
+  return '';
+}
+
 async function generateSummary() {
   const summaryBox = document.getElementById('summaryBox');
-  const rawBox = document.getElementById('rawBox');
   if (summaryGenerated) return;
-  if (!rawBox || !rawBox.textContent.trim()) return;
+  if (!rawOutputText.trim()) return;
+  if (summaryBox) summaryBox.innerText = runningMessage;
   if (typeof Summarizer === 'undefined') {
     console.warn('Summarizer API not available');
     if (summaryBox) summaryBox.innerText = defaultMessage;
@@ -123,9 +144,15 @@ async function generateSummary() {
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
-    const result = await summarizer.summarize({ text: rawBox.textContent });
+    const result = await summarizer.summarize({ text: rawOutputText });
     const summaryText = (result && result.summary) || '';
-    if (summaryBox) summaryBox.innerHTML = markdownToHTML(summaryText);
+    if (summaryBox) {
+      if (summaryText.trim()) {
+        summaryBox.innerHTML = markdownToHTML(summaryText);
+      } else {
+        summaryBox.innerText = defaultMessage;
+      }
+    }
     summaryGenerated = true;
   } catch (err) {
     console.error(err);
