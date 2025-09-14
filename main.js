@@ -57,9 +57,7 @@ async function compareImages() {
       },
     ]);
 
-    response1.then(r => {
-      document.getElementById("analysisResult").value = JSON.stringify(r, null, 2);
-    });
+    document.getElementById("analysisResult").value = JSON.stringify(response1, null, 2);
   } catch (err) {
     console.error(err);
   }
