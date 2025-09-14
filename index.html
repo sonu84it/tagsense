@@ -29,9 +29,9 @@
 </div>
 
 <div id="app">
-  <div id="leftPane">
+  <div class="pane" id="originalPane">
     <h2>Original</h2>
-    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" onclick="analyzeImage(this)" />
+    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" />
     <div id="controls">
       <label for="actionSelect">Action:</label>
       <select id="actionSelect" disabled>
@@ -42,30 +42,14 @@
       <button id="applyBtn" onclick="applyAction()" disabled>Apply</button>
     </div>
   </div>
-  <div id="rightPane">
+  <div class="pane" id="resultPane">
     <h2>Result</h2>
-    <img id="outputImage" src="" alt="Output Image" style="display: none;" onclick="analyzeImage(this)" />
+    <img id="outputImage" src="" alt="Output Image" style="display: none;" />
     <textarea id="analysisResult" readonly style="display: none;"></textarea>
   </div>
 </div>
 
 <script src="./main.js"></script>
-<script>
-  if ("ai" in window) {
-    console.log("✅ Prompt API available");
-    (async () => {
-      try {
-        const session = await window.ai.createTextSession();
-        const res = await session.prompt("Say hello from TagSense!");
-        console.log("AI Response:", res);
-      } catch (err) {
-        console.error("Prompt API error:", err);
-      }
-    })();
-  } else {
-    console.error("❌ Prompt API not available");
-  }
-</script>
 
 </body>
 </html>
