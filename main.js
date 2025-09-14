@@ -57,10 +57,13 @@ async function compareImages() {
       },
     ]);
 
-    console.log(response1);
-    const analysisText =
-      response1?.output?.[0]?.content ?? "No response";
-    document.getElementById('analysisResult').value = analysisText;
+    const content = response1?.output?.[0]?.content;
+    const analysisText = Array.isArray(content)
+      ? content
+          .map((c) => (typeof c === "string" ? c : c.text))
+          .join("\n")
+      : content ?? "No response";
+    document.getElementById("analysisResult").value = analysisText;
   } catch (err) {
     console.error(err);
   }
