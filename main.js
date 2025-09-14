@@ -18,7 +18,9 @@ function selectImage(imgElement) {
   document.getElementById('outputImage').style.display = 'none';
   document.getElementById('summarySection').style.display = 'none';
   document.getElementById('summaryBox').innerHTML = '';
-  document.getElementById('rawBox').textContent = '';
+  document.getElementById('rawBox').innerHTML = '';
+  updateScrollable(document.getElementById('summaryBox'));
+  updateScrollable(document.getElementById('rawBox'));
   document.getElementById('summaryTab').disabled = true;
   summaryGenerated = false;
   rawOutputText = '';
@@ -34,7 +36,9 @@ async function applyAction() {
   document.getElementById('summarySection').style.display = 'block';
   document.getElementById('summaryHeading').style.display = 'block';
   document.getElementById('summaryBox').innerHTML = '';
-  document.getElementById('rawBox').textContent = '';
+  document.getElementById('rawBox').innerHTML = '';
+  updateScrollable(document.getElementById('summaryBox'));
+  updateScrollable(document.getElementById('rawBox'));
   document.getElementById('summaryTab').disabled = true;
   summaryGenerated = false;
   rawOutputText = '';
@@ -78,12 +82,24 @@ const defaultMessage =
 async function compareImages() {
   const summaryBox = document.getElementById('summaryBox');
   const rawBox = document.getElementById('rawBox');
-  if (summaryBox) summaryBox.innerText = runningMessageSummaryAPI;
-  if (rawBox) rawBox.textContent = runningMessagePromptAPI;
+  if (summaryBox) {
+    summaryBox.innerText = runningMessageSummaryAPI;
+    updateScrollable(summaryBox);
+  }
+  if (rawBox) {
+    rawBox.innerHTML = runningMessagePromptAPI;
+    updateScrollable(rawBox);
+  }
   if (typeof LanguageModel === 'undefined') {
     console.warn('LanguageModel API not available');
-    if (summaryBox) summaryBox.innerText = defaultMessage;
-    if (rawBox) rawBox.textContent = defaultMessage;
+    if (summaryBox) {
+      summaryBox.innerText = defaultMessage;
+      updateScrollable(summaryBox);
+    }
+    if (rawBox) {
+      rawBox.innerHTML = defaultMessage;
+      updateScrollable(rawBox);
+    }
     return;
   }
   try {
@@ -110,12 +126,21 @@ async function compareImages() {
       },
     ]);
     rawOutputText = JSON.stringify(response1, null, 2);
-    if (rawBox) rawBox.textContent = rawOutputText;
+    if (rawBox) {
+      rawBox.innerHTML = rawOutputText;
+      updateScrollable(rawBox);
+    }
     document.getElementById('summaryTab').disabled = !rawOutputText;
   } catch (err) {
     console.error(err);
-    if (summaryBox) summaryBox.innerText = defaultMessage;
-    if (rawBox) rawBox.textContent = defaultMessage;
+    if (summaryBox) {
+      summaryBox.innerText = defaultMessage;
+      updateScrollable(summaryBox);
+    }
+    if (rawBox) {
+      rawBox.innerHTML = defaultMessage;
+      updateScrollable(rawBox);
+    }
   }
 }
 
@@ -123,20 +148,40 @@ async function generateSummary() {
   const summaryBox = document.getElementById('summaryBox');
   if (summaryGenerated) return;
   if (!rawOutputText.trim()) return;
-  if (summaryBox) summaryBox.innerText = runningMessageSummaryAPI;
+  if (summaryBox) {
+    summaryBox.innerText = runningMessageSummaryAPI;
+    updateScrollable(summaryBox);
+  }
   if (typeof Summarizer === 'undefined') {
     console.warn('Summarizer API not available');
-    if (summaryBox) summaryBox.innerText = defaultMessage;
+    if (summaryBox) {
+      summaryBox.innerText = defaultMessage;
+      updateScrollable(summaryBox);
+    }
     return;
   }
   try {
     const summarizer = await Summarizer.create({ language: 'en' });
     const result = await summarizer.summarize(rawOutputText);
     summaryBox.innerHTML = markdownToHTML(result);
+    updateScrollable(summaryBox);
     summaryGenerated = true;
   } catch (err) {
     console.error(err);
-    if (summaryBox) summaryBox.innerText = defaultMessage;
+    if (summaryBox) {
+      summaryBox.innerText = defaultMessage;
+      updateScrollable(summaryBox);
+    }
+  }
+}
+
+function updateScrollable(element) {
+  if (!element) return;
+  const words = element.innerText.trim().split(/\s+/).filter(Boolean);
+  if (words.length > 25) {
+    element.classList.add('scrollable');
+  } else {
+    element.classList.remove('scrollable');
   }
 }
 

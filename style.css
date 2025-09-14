@@ -157,20 +157,26 @@ body {
   cursor: not-allowed;
 }
 
+
 .tab-content {
   display: none;
-  overflow-y: auto;
-  max-height: 150px;
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
   background: #fff;
   margin-top: 10px;
   text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .tab-content.active {
   display: block;
+}
+
+.scrollable {
+  max-height: 150px;
+  overflow-y: auto;
 }
 
 .app-footer {
