@@ -98,7 +98,7 @@
 <div id="app">
   <div id="leftPane">
     <h2>Original</h2>
-    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" />
+    <img id="preview" src="" alt="Selected Image Preview" style="display: none;" onclick="analyzeImage(this)" />
     <div id="controls">
       <label for="actionSelect">Action:</label>
       <select id="actionSelect" disabled>
@@ -111,7 +111,7 @@
   </div>
   <div id="rightPane">
     <h2>Result</h2>
-    <img id="outputImage" src="" alt="Output Image" style="display: none;" />
+    <img id="outputImage" src="" alt="Output Image" style="display: none;" onclick="analyzeImage(this)" />
   </div>
 </div>
 
@@ -137,6 +137,25 @@
     const outImg = document.getElementById('outputImage');
     outImg.src = outputPath;
     outImg.style.display = 'block';
+  }
+
+  async function analyzeImage(imgElement) {
+    if (!window.chrome?.ai?.prompt) {
+      alert('Prompt API not available');
+      return;
+    }
+    try {
+      const blob = await fetch(imgElement.src).then(r => r.blob());
+      const result = await chrome.ai.prompt({
+        prompt: 'Identify any privacy, security, or compliance issues in this image.',
+        images: [blob]
+      });
+      const message = result?.output?.[0]?.content?.[0]?.text || 'No issues detected.';
+      alert(message);
+    } catch (err) {
+      console.error(err);
+      alert('Error analyzing image');
+    }
   }
 </script>
 
