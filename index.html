@@ -5,74 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="origin-trial" content="ArFm9aFw4tyKDX4T31yRBGjMO8zBwMfVSxXkdd+q6/8xFBxaFrPudMOtk3zUVY79+0Z0jTVHHwBCht5fm8vFfgIAAABmeyJvcmlnaW4iOiJodHRwczovL3NvbnU4NGl0LmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDB9" />
   <title>Image Privacy Pre-processor Prototype</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-      color: #333;
-      overflow: hidden;
-    }
-    h1 {
-      text-align: center;
-      color: #ff4081;
-    }
-    #image-selector {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    .image-option {
-      text-align: center;
-    }
-    .img-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #ff4081;
-    }
-    .image-option img {
-      width: 80px;
-      height: auto;
-      cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: 4px;
-    }
-    .image-option img.selected {
-      border-color: #ff4081;
-    }
-    #app {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      height: calc(100vh - 200px);
-    }
-    #leftPane, #rightPane {
-      flex: 1;
-      text-align: center;
-    }
-    #preview, #outputImage {
-      max-width: 90%;
-      max-height: 100%;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-    #controls {
-      margin-top: 10px;
-    }
-    select, button {
-      padding: 8px 12px;
-      border-radius: 4px;
-      border: none;
-      margin-right: 10px;
-    }
-    button {
-      background: #ff4081;
-      color: #fff;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
@@ -116,47 +49,21 @@
   </div>
 </div>
 
+<script src="./main.js"></script>
 <script>
-  let selectedImageBase = "";
-
-  function selectImage(imgElement) {
-    const thumbnails = document.querySelectorAll('#image-selector img');
-    thumbnails.forEach(img => img.classList.remove('selected'));
-    imgElement.classList.add('selected');
-    document.getElementById('preview').src = imgElement.src;
-    document.getElementById('preview').style.display = 'block';
-    selectedImageBase = imgElement.src.replace(/^.*\/(.*)\.[^.]+$/, '$1');
-    document.getElementById('actionSelect').disabled = false;
-    document.getElementById('applyBtn').disabled = false;
-    document.getElementById('outputImage').style.display = 'none';
-  }
-
-  function applyAction() {
-    const action = document.getElementById('actionSelect').value;
-    if (!selectedImageBase) return;
-    const outputPath = `images/${selectedImageBase}_${action}.png`;
-    const outImg = document.getElementById('outputImage');
-    outImg.src = outputPath;
-    outImg.style.display = 'block';
-  }
-
-  async function analyzeImage(imgElement) {
-    if (!window.chrome?.ai?.prompt) {
-      alert('Prompt API not available');
-      return;
-    }
-    try {
-      const blob = await fetch(imgElement.src).then(r => r.blob());
-      const result = await chrome.ai.prompt({
-        prompt: 'Identify any privacy, security, or compliance issues in this image.',
-        images: [blob]
-      });
-      const message = result?.output?.[0]?.content?.[0]?.text || 'No issues detected.';
-      alert(message);
-    } catch (err) {
-      console.error(err);
-      alert('Error analyzing image');
-    }
+  if ("ai" in window) {
+    console.log("✅ Prompt API available");
+    (async () => {
+      try {
+        const session = await window.ai.createTextSession();
+        const res = await session.prompt("Say hello from TagSense!");
+        console.log("AI Response:", res);
+      } catch (err) {
+        console.error("Prompt API error:", err);
+      }
+    })();
+  } else {
+    console.error("❌ Prompt API not available");
   }
 </script>
 
