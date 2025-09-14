@@ -44,7 +44,7 @@ async function compareImages() {
     const inputimage = await (await fetch(document.getElementById('preview').src)).blob();
     const outputimage = await (await fetch(document.getElementById('outputImage').src)).blob();
 
-    const responseStream1 = await session.promptStreaming([
+    const response1 = await session.prompt([
       {
         role: 'user',
         content: [
