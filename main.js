@@ -10,6 +10,8 @@ function selectImage(imgElement) {
   document.getElementById('actionSelect').disabled = false;
   document.getElementById('applyBtn').disabled = false;
   document.getElementById('outputImage').style.display = 'none';
+  document.getElementById('summaryHeading').style.display = 'none';
+  document.getElementById('analysisResult').style.display = 'none';
 }
 
 async function applyAction() {
